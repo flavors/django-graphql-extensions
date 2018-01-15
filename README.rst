@@ -37,5 +37,5 @@ Install last stable version from Pypi.
 .. |Codecov| image:: https://img.shields.io/codecov/c/github/flavors/django-graphql-extensions.svg
    :target: https://codecov.io/gh/flavors/django-graphql-extensions
 
-.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/.../maintainability
+.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/6ca5da3b6a51d35ea7d6/maintainability
    :target: https://codeclimate.com/github/flavors/django-graphql-extensions
