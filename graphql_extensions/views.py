@@ -11,6 +11,7 @@ from graphql.error import GraphQLError
 from graphql.error.located_error import GraphQLLocatedError
 
 from . import exceptions
+from .utils import dashed_to_camel
 
 
 class GraphQLView(BaseGraphQLView):
@@ -33,12 +34,12 @@ class GraphQLView(BaseGraphQLView):
             graphql_error['message'] = _('Internal server error')
 
         if isinstance(error, exceptions.GraphQLError):
-            graphql_error['code'] = error.code
+            graphql_error['code'] = dashed_to_camel(error.code)
 
             if error.error_data:
                 graphql_error['data'] = error.error_data
         else:
-            graphql_error['code'] = 'graphql-error'
+            graphql_error['code'] = 'error'
 
         if 'location' in formatted_error:
             graphql_error['location'] = formatted_error['location']
