@@ -20,12 +20,12 @@ class GraphQLError(Exception):
 
 class NotAuthenticated(GraphQLError):
     default_message = _('Incorrect authentication credentials')
-    default_code = 'authentication_failed'
+    default_code = 'authenticationFailed'
 
 
 class PermissionDenied(GraphQLError):
     default_message = _('You do not have permission to perform this action')
-    default_code = 'permission_denied'
+    default_code = 'permissionDenied'
 
 
 class ValidationError(GraphQLError):
@@ -35,4 +35,4 @@ class ValidationError(GraphQLError):
 
 class NotFound(GraphQLError):
     default_message = _('GraphQL object not found')
-    default_code = 'not_found'
+    default_code = 'notFound'
