@@ -25,7 +25,42 @@ Install last stable version from Pypi.
     pip install django-graphql-extensions
 
 
-Configure your ``GraphQLView`` to return appropriate **error responses**.
+Authentication
+--------------
+
+- ``@login_required``
+- ``@staff_member_required``
+- ``@permission_required``
+
+.. code:: python
+
+    from django.contrib.auth import get_user_model
+
+    import graphene
+    from graphql_extensions.auth.decorators import (
+        login_required, staff_member_required
+    )
+
+
+    class Query(graphene.ObjectType):
+        me = graphene.Field(UserType)
+        users = graphene.List(UserType)
+
+        @login_required
+        def resolve_me(self, info, **kwargs):
+            return info.context.user
+
+        @staff_member_required
+        def resolve_users(self, info, **kwargs):
+            return get_user_model().objects.all()
+
+
+Errors
+------
+
+Returning appropriate **error responses** and **masking** error messages sent to the client.
+
+Configure your ``GraphQLView``.
 
 .. code:: python
 
@@ -34,36 +69,67 @@ Configure your ``GraphQLView`` to return appropriate **error responses**.
     from graphql_extensions.views import GraphQLView
 
     urlpatterns = [
-        path('', GraphQLView.as_view(), name='graphql-index'),
+        path('', GraphQLView.as_view(), name='index'),
     ]
 
+**Exceptions**
 
-Some features
--------------
+.. code:: python
 
-- **Authentication** extensions, ``@login_required``, ``@staff_member_required`` and ``@permission_required``.
-- Returning appropriate **error responses**, ``graphql_extensions.views.GraphQLView``.
-- **Pre-built mutations** that provide for commonly used patterns, ``RetrieveMixin`` and ``UpdateMixin``.
-- Complete support for `Relay`_.
-- Custom *Graphene* **types**, ``Email``, ``Timestamp``, ``Choices``, ``CamelJSON``...
-- Helper classes to improve support for **testing** ``GraphQLTestCase``.
-
-.. _Relay: https://facebook.github.io/relay/
+    from graphql_extensions import exceptions
 
 
-Demo
-----
+    raise exceptions.GraphQLError()
+    raise exceptions.NotAuthenticated()
+    raise exceptions.PermissionDenied()
+    raise exceptions.ValidationError()
+    raise exceptions.NotFound()
 
-**Code**
+
+**Payload**
+
+.. code:: js
+
+    {
+      "errors": [
+        {
+          "type": "NotFound",
+          "message": "GraphQL object not found",
+          "code": "notFound",
+          "data": {
+            "id": 1
+          },
+          "path": ["updateGroup"],
+          "operation": "mutation",
+          "trace": [
+            "  File \"/app/schema.py\", line 30, in mutate\n    group = cls.update(info, **kwargs)\n",
+            "  File \"/graphql_extensions/mixins.py\", line 32, in update\n    instance = cls.get_object(context, id=id)\n",
+            "  File \"/graphql_extensions/mixins.py\", line 21, in get_object\n    raise exceptions.NotFound(**kwargs)\n"
+          ]
+        }
+      ],
+      "data": {
+        "updateGroup": null
+      }
+    }
+
+
+Mixins
+------
+
+**Pre-built mutations** that provide for commonly used patterns.
+
+- ``RetrieveMixin``
+- ``UpdateMixin``
 
 .. code:: python
 
     from django.contrib.auth.models import Group
 
     import graphene
+    from graphene_django import DjangoObjectType
     from graphql_extensions import mixins
     from graphql_extensions.auth.decorators import login_required
-    from graphene_django import DjangoObjectType
 
 
     class GroupType(DjangoObjectType):
@@ -90,32 +156,73 @@ Demo
             return cls(group=group)
 
 
-**Payload**
+Testing
+-------
 
-.. code:: js
+Helper classes to improve support for **testing**.
 
-    {
-      "errors": [
-        {
-          "type": "NotFound",
-          "message": "GraphQL object not found",
-          "code": "not_found",
-          "data": {
-            "id": 1
-          },
-          "path": "updateGroup",
-          "operation": "mutation",
-          "trace": [
-            "  File \"/app/schema.py\", line 30, in mutate\n    group = cls.update(info, **kwargs)\n",
-            "  File \"/graphql_extensions/mixins.py\", line 32, in update\n    instance = cls.get_object(context, id=id)\n",
-            "  File \"/graphql_extensions/mixins.py\", line 21, in get_object\n    raise exceptions.NotFound(**kwargs)\n"
-          ]
-        }
-      ],
-      "data": {
-        "updateGroup": null
-      }
-    }
+- ``GraphQLTestCase``
+
+
+.. code:: python
+
+    from graphql_extensions.testcases import GraphQLTestCase
+
+
+    class UsersTests(GraphQLTestCase):
+
+        def test_create_user(self):
+            query = '''
+            mutation CreateUser($username: String!, $password: String!) {
+              createUser(username: $username, password: $password) {
+                user {
+                  id
+                }
+              }
+            }'''
+
+            username = 'test'
+            password = 'dolphins'
+
+            response = self.client.execute(query, {
+                'username': username,
+                'password': password,
+            })
+
+            self.assertFalse(response.errors)
+            self.assertTrue(response.data['user'])
+
+            self.client.login(username=username, password=password)
+
+            query = '''
+            {
+              me {
+                username
+              }
+            }'''
+
+            response = self.client.execute(query)
+            self.assertEqual(response.data['me']['username'], username)
+
+
+Types
+-----
+
+Custom *Graphene* **types**.
+
+- ``Email``
+- ``Timestamp``
+- ``Choices``
+- ``CamelJSON``
+- ...
+
+
+Relay
+-----
+
+Complete support for `Relay`_.
+
+.. _Relay: https://facebook.github.io/relay/
 
 
 .. |Pypi| image:: https://img.shields.io/pypi/v/django-graphql-extensions.svg
