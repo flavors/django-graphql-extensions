@@ -18,11 +18,6 @@ class GraphQLError(Exception):
         super().__init__(message)
 
 
-class NotAuthenticated(GraphQLError):
-    default_message = _('Incorrect authentication credentials')
-    default_code = 'authenticationFailed'
-
-
 class PermissionDenied(GraphQLError):
     default_message = _('You do not have permission to perform this action')
     default_code = 'permissionDenied'

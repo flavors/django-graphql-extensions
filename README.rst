@@ -80,7 +80,6 @@ Configure your ``GraphQLView``.
 
 
     raise exceptions.GraphQLError()
-    raise exceptions.NotAuthenticated()
     raise exceptions.PermissionDenied()
     raise exceptions.ValidationError()
     raise exceptions.NotFound()
