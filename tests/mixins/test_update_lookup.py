@@ -1,7 +1,7 @@
-from ..testcases import GroupTestcase
+from ..testcases import GroupTestCase
 
 
-class RetrieveMixinTests(GroupTestcase):
+class RetrieveMixinTests(GroupTestCase):
 
     def execute(self, arguments):
         query = '''

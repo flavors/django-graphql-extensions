@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from graphql_extensions.testcases import GraphQLTestCase
 
 
-class UserTestcase(GraphQLTestCase):
+class UserTestCase(GraphQLTestCase):
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -12,7 +12,7 @@ class UserTestcase(GraphQLTestCase):
             password='dolphins')
 
 
-class GroupTestcase(UserTestcase):
+class GroupTestCase(UserTestCase):
 
     def setUp(self):
         super().setUp()

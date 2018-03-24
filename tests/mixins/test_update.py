@@ -1,7 +1,7 @@
-from ..testcases import GroupTestcase
+from ..testcases import GroupTestCase
 
 
-class UpdateMixinTests(GroupTestcase):
+class UpdateMixinTests(GroupTestCase):
 
     def execute(self, arguments):
         query = '''
