@@ -7,9 +7,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Django GraphQL JWT\n"
+"Project-Id-Version: Django GraphQL Extensions\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-19 20:30+0530\n"
+"POT-Creation-Date: 2018-03-25 01:22+0700\n"
 "PO-Revision-Date: 2018-01-19 20:26+0530\n"
 "Last-Translator: mongkok <domake.io@gmail.com>\n"
 "Language-Team: Spanish\n"
@@ -24,18 +24,14 @@ msgid "A server error occurred"
 msgstr "Error en el servidor"
 
 #: exceptions.py:22
-msgid "Incorrect authentication credentials"
-msgstr "Credenciales de autenticación incorrectas"
-
-#: exceptions.py:27
 msgid "You do not have permission to perform this action"
 msgstr "No tienes permiso para realizar esta operación"
 
-#: exceptions.py:32
+#: exceptions.py:27
 msgid "Invalid input"
 msgstr "Los datos no son correctos"
 
-#: exceptions.py:37
+#: exceptions.py:32
 msgid "GraphQL object not found"
 msgstr "GraphQL objecto no encontrado"
 
@@ -43,10 +39,10 @@ msgstr "GraphQL objecto no encontrado"
 msgid "ID cannot be resolved"
 msgstr "ID no puede resolverse"
 
-#: types/choices.py:28
+#: types/choices.py:29
 msgid "Invalid choice '{}'"
 msgstr "Opción inválida '{}'"
 
-#: views.py:34
+#: views.py:33
 msgid "Internal server error"
 msgstr "Error interno del servidor"
