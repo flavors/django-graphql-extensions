@@ -1,56 +1,74 @@
-from unittest.mock import MagicMock, PropertyMock
+from unittest.mock import Mock
 
-from django.test import TestCase
+from django.contrib.auth import models
 
 from graphql_extensions import exceptions
 from graphql_extensions.auth import decorators
 
+from ..testcases import UserTestCase
 
-class GraphQLDecoratorsTests(TestCase):
+
+def info_mock(user):
+    return Mock(context=Mock(user=user))
+
+
+class AuthDecoratorsTests(UserTestCase):
 
     def test_login_required(self):
 
         @decorators.login_required
-        def wrapped(info, *args, **kwargs):
-            return True
-
-        info_mock = MagicMock()
-
-        type(info_mock.context.user).is_anonymous =\
-            PropertyMock(return_value=False)
-
-        self.assertTrue(wrapped(info_mock))
-
-    def test_login_required_error(self):
-
-        @decorators.login_required
-        def wrapped(info, *args, **kwargs):
+        def wrapped(info):
             """Decorated function"""
 
-        info_mock = MagicMock()
+        result = wrapped(info_mock(self.user))
+        self.assertIsNone(result)
 
-        with self.assertRaises(exceptions.NotAuthenticated):
-            wrapped(info_mock)
+    def test_login_required_permission_denied(self):
+
+        @decorators.login_required
+        def wrapped(info):
+            """Decorated function"""
+
+        with self.assertRaises(exceptions.PermissionDenied):
+            wrapped(info_mock(models.AnonymousUser()))
 
     def test_staff_member_required(self):
 
         @decorators.staff_member_required
-        def wrapped(info, *args, **kwargs):
-            return True
-
-        info_mock = MagicMock()
-        self.assertTrue(wrapped(info_mock))
-
-    def test_staff_member_required_error(self):
-
-        @decorators.staff_member_required
-        def wrapped(info, *args, **kwargs):
+        def wrapped(info):
             """Decorated function"""
 
-        info_mock = MagicMock()
+        self.user.is_staff = True
+        result = wrapped(info_mock(self.user))
 
-        type(info_mock.context.user).is_active =\
-            PropertyMock(return_value=False)
+        self.assertIsNone(result)
 
-        with self.assertRaises(exceptions.NotAuthenticated):
-            wrapped(info_mock)
+    def test_staff_member_required_permission_denied(self):
+
+        @decorators.staff_member_required
+        def wrapped(info):
+            """Decorated function"""
+
+        with self.assertRaises(exceptions.PermissionDenied):
+            wrapped(info_mock(self.user))
+
+    def test_permission_required(self):
+
+        @decorators.permission_required('auth.add_user')
+        def wrapped(info):
+            """Decorated function"""
+
+        perm = models.Permission.objects.get(codename='add_user')
+        self.user.user_permissions.add(perm)
+
+        result = wrapped(info_mock(self.user))
+        self.assertIsNone(result)
+
+    def test_permission_denied(self):
+
+        @decorators.permission_required(['auth.add_user', 'auth.change_user'])
+        def wrapped(info):
+            """Decorated function"""
+
+        with self.assertRaises(exceptions.PermissionDenied):
+            wrapped(info_mock(self.user))
