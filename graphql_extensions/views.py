@@ -6,8 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import ugettext as _
 
 from graphene_django.views import GraphQLView as BaseGraphQLView
-from graphql.error import format_error as format_graphql_error
 from graphql.error import GraphQLError
+from graphql.error import format_error as format_graphql_error
 from graphql.error.located_error import GraphQLLocatedError
 
 from . import exceptions

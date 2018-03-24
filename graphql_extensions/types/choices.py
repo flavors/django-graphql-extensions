@@ -2,7 +2,8 @@ from django.utils.translation import ugettext as _
 
 from graphene.types.scalars import Scalar
 from graphql.language import ast
-from graphql_extensions import exceptions
+
+from .. import exceptions
 
 
 class Choices(Scalar):
