@@ -38,16 +38,16 @@ Authentication
 
     import graphene
     from graphql_extensions.auth.decorators import (
-        login_required, staff_member_required
+        login_required, staff_member_required,
     )
 
 
     class Query(graphene.ObjectType):
-        me = graphene.Field(UserType)
+        viewer = graphene.Field(UserType)
         users = graphene.List(UserType)
 
         @login_required
-        def resolve_me(self, info, **kwargs):
+        def resolve_viewer(self, info, **kwargs):
             return info.context.user
 
         @staff_member_required
