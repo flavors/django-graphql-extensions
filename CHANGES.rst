@@ -1,17 +1,18 @@
 Changelog
 =========
 
+0.0.3
+-----
+
+* Added user_passes_test decorator
 
 0.0.2
 -----
 
-Changes:
- - Added permission_required decorator
- - Removed NotAuthenticated exception
-
+* Added permission_required decorator
+* Removed NotAuthenticated exception
 
 0.0.1
 -----
 
-Changes:
- - xin chào!
+* xin chào!
