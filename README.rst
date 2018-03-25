@@ -31,6 +31,7 @@ Authentication
 - ``@login_required``
 - ``@staff_member_required``
 - ``@permission_required``
+- ``@user_passes_test``
 
 .. code:: python
 
