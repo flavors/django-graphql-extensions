@@ -8,11 +8,11 @@ class Timestamp(Scalar):
 
     @classmethod
     def serialize(cls, value):
-        return value.timestamp()
+        return int(value.timestamp())
 
     @classmethod
     def parse_literal(cls, node):
-        if isinstance(node, ast.FloatValue):
+        if isinstance(node, ast.IntValue):
             return cls.parse_value(node.value)
 
     @classmethod

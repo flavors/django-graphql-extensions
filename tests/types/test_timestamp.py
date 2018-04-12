@@ -12,7 +12,7 @@ class TimestampTypeTests(TestCase):
     def test_timestamp(self):
         now = datetime.datetime.now()
         timestamp_type = types.Timestamp()
-        node = ast.FloatValue(now.timestamp())
+        node = ast.IntValue(now.timestamp())
 
-        self.assertEqual(timestamp_type.serialize(now), now.timestamp())
+        self.assertEqual(timestamp_type.serialize(now), int(now.timestamp()))
         self.assertEqual(timestamp_type.parse_literal(node), now)
