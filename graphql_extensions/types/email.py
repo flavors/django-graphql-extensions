@@ -22,6 +22,6 @@ class Email(Scalar):
     def parse_value(cls, value):
         try:
             validate_email(value)
-        except ValidationError as err:
-            raise exceptions.ValidationError(str(err))
+        except ValidationError as e:
+            raise exceptions.ValidationError(str(e.args[0]))
         return value
