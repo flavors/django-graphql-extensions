@@ -8,7 +8,7 @@ class RetrieveOptions(MutationOptions):
     lookup_argument = 'id'
 
 
-class RetrieveMixin(object):
+class RetrieveMixin:
 
     @classmethod
     def __init_subclass_with_meta__(cls, _meta=None, lookup_field=None,
