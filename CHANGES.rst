@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.0.4
+-----
+
+* Improved scalars
+
 0.0.3
 -----
 
