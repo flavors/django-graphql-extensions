@@ -33,6 +33,10 @@ Authentication
 - ``@permission_required``
 - ``@user_passes_test``
 
+See the `documentation`_ to know the full list of decorators.
+
+.. _documentation: https://github.com/flavors/django-graphql-extensions/wiki/Auth-decorators
+
 .. code:: python
 
     from django.contrib.auth import get_user_model
