@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.0.5
+-----
+
+* Added ExtensionsSettings
+* Added EXT_SHOW_ERROR_MESSAGE_HANDLER setting variable
+
 0.0.4
 -----
 
