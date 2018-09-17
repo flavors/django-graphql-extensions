@@ -11,6 +11,14 @@ from graphql.error import format_error as format_graphql_error
 from graphql.error.located_error import GraphQLLocatedError
 
 from . import exceptions
+from .settings import extensions_settings
+
+
+def show_error_message(error):
+    return settings.DEBUG or isinstance(error, (
+        exceptions.GraphQLError,
+        GraphQLError,
+    ))
 
 
 class GraphQLView(BaseGraphQLView):
@@ -23,10 +31,7 @@ class GraphQLView(BaseGraphQLView):
         formatted_error = format_graphql_error(error)
         graphql_error = OrderedDict([('type', error.__class__.__name__)])
 
-        if settings.DEBUG or isinstance(error, (
-            exceptions.GraphQLError,
-            GraphQLError,
-        )):
+        if extensions_settings.EXT_SHOW_ERROR_MESSAGE_HANDLER(error):
             graphql_error['message'] = formatted_error['message']
         else:
             # Internal errors must be masked

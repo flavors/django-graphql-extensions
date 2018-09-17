@@ -3,6 +3,16 @@ from importlib import import_module
 from django.conf import settings
 from django.test.signals import setting_changed
 
+DEFAULTS = {
+    'EXT_SHOW_ERROR_MESSAGE_HANDLER':
+    'graphql_extensions.views.show_error_message',
+}
+
+IMPORT_STRINGS = (
+    'EXT_SHOW_ERROR_MESSAGE_HANDLER',
+)
+
+
 def perform_import(value, setting_name):
     if value is not None and isinstance(value, str):
         return import_from_string(value, setting_name)
