@@ -12,8 +12,8 @@ class GraphQLRequestFactory(RequestFactory):
     def execute(self, context, query, variables, extra):
         response = self._schema.execute(
             query,
-            context_value=context,
-            variable_values=variables)
+            context=context,
+            variables=variables)
 
         if response.errors is not None:
             response.errors = [
