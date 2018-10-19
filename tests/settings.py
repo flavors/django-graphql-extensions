@@ -15,7 +15,3 @@ SECRET_KEY = 'test'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-GRAPHENE = {
-    'SCHEMA': 'tests.schema.schema',
-}
