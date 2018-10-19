@@ -84,10 +84,10 @@ Configure your ``GraphQLView``.
     from graphql_extensions import exceptions
 
 
-    raise exceptions.GraphQLError()
-    raise exceptions.PermissionDenied()
-    raise exceptions.ValidationError()
-    raise exceptions.NotFound()
+- ``exceptions.GraphQLError``
+- ``exceptions.PermissionDenied``
+- ``exceptions.ValidationError``
+- ``exceptions.NotFound``
 
 
 **Payload**
@@ -160,20 +160,17 @@ Mixins
             return cls(group=group)
 
 
-Testing
--------
+Writing tests
+-------------
 
-Helper classes to improve support for **testing**.
-
-- ``GraphQLTestCase``
-
+This package includes a subclass of `unittest.TestCase <https://docs.python.org/3/library/unittest.html#unittest.TestCase>`__ ``SchemaTestCase`` and improve support for making GraphQL queries.
 
 .. code:: python
 
-    from graphql_extensions.testcases import GraphQLTestCase
+    from graphql_extensions.testcases import SchemaTestCase
 
 
-    class UsersTests(GraphQLTestCase):
+    class UsersTests(SchemaTestCase):
 
         def test_create_user(self):
             query = '''
@@ -185,28 +182,26 @@ Helper classes to improve support for **testing**.
               }
             }'''
 
-            username = 'test'
-            password = 'dolphins'
-
             response = self.client.execute(query, {
-                'username': username,
-                'password': password,
+                'username': 'test',
+                'password': 'dolphins',
             })
 
             self.assertFalse(response.errors)
             self.assertTrue(response.data['user'])
 
-            self.client.login(username=username, password=password)
+        def test_get_viewer(self):
+            self.client.login(username='test', password='dolphins')
 
             query = '''
             {
-              me {
+              viewer {
                 username
               }
             }'''
 
             response = self.client.execute(query)
-            self.assertEqual(response.data['me']['username'], username)
+            self.assertEqual(response.data['viewer']['username'], 'test')
 
 
 Types
