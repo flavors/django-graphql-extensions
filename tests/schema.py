@@ -21,10 +21,10 @@ class GroupType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    me = graphene.Field(UserType)
+    viewer = graphene.Field(UserType)
 
     @login_required
-    def resolve_me(self, info, **kwargs):
+    def resolve_viewer(self, info, **kwargs):
         return info.context.user
 
 
@@ -41,8 +41,7 @@ class UpdateGroupMutation(mixins.UpdateMixin, graphene.Mutation):
     @classmethod
     @login_required
     def mutate(cls, root, info, **kwargs):
-        group = cls.update(info, **kwargs)
-        return cls(group=group)
+        return cls(group=cls.update(info, **kwargs))
 
 
 class UpdateGroup(UpdateGroupMutation):
@@ -50,21 +49,3 @@ class UpdateGroup(UpdateGroupMutation):
     class Arguments:
         id = graphene.Int(required=True)
         name = graphene.String()
-
-
-class UpdateGroupLookup(UpdateGroupMutation):
-
-    class Meta:
-        lookup_field = 'name'
-        lookup_argument = 'name'
-
-    class Arguments:
-        name = graphene.String(required=True)
-
-
-class Mutations(graphene.ObjectType):
-    update_group = UpdateGroup.Field()
-    update_group_lookup = UpdateGroupLookup.Field()
-
-
-schema = graphene.Schema(query=Query, mutation=Mutations)

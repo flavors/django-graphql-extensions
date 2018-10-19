@@ -9,7 +9,7 @@ from graphql_extensions import exceptions
 from graphql_extensions.relay import types
 
 
-class GraphQLTypesTests(TestCase):
+class GlobalIDTests(TestCase):
 
     def test_global_id(self):
         global_id_type = types.GlobalID()
@@ -20,7 +20,7 @@ class GraphQLTypesTests(TestCase):
         self.assertEqual(global_id_type.serialize(global_id), global_id)
         self.assertEqual(global_id_type.parse_literal(node), random_id)
 
-    def test_global_id_error(self):
+    def test_id_error(self):
         global_id_type = types.GlobalID()
         node = ast.StringValue('invalid')
 

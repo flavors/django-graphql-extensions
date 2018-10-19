@@ -1,9 +1,15 @@
-from ..testcases import GroupTestCase
+import graphene
+
+from .. import schema
+from ..testcases import SchemaTestCase
 
 
-class UpdateMixinTests(GroupTestCase):
+class UpdateMixinTests(SchemaTestCase):
 
-    def execute(self, arguments):
+    class Mutations(graphene.ObjectType):
+        update_group = schema.UpdateGroup.Field()
+
+    def execute(self, variables):
         query = '''
         mutation UpdateGroup($id: Int!, $name: String!) {
           updateGroup(id: $id, name: $name) {
@@ -13,7 +19,7 @@ class UpdateMixinTests(GroupTestCase):
           }
         }'''
 
-        return self.client.execute(query, arguments)
+        return self.client.execute(query, variables)
 
     def test_update_group(self):
         self.group.user_set.add(self.user)
@@ -27,7 +33,7 @@ class UpdateMixinTests(GroupTestCase):
         data = response.data['updateGroup']['group']
         self.assertTrue(data['name'], '-updated-')
 
-    def test_update_group_not_found(self):
+    def test_group_not_found(self):
         self.group.user_set.add(self.user)
         self.client.force_login(self.user)
 
@@ -38,7 +44,7 @@ class UpdateMixinTests(GroupTestCase):
 
         self.assertTrue(response.errors)
 
-    def test_update_group_login_required(self):
+    def test_login_required(self):
         self.group.user_set.add(self.user)
 
         response = self.execute({

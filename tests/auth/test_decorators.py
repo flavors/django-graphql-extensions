@@ -1,18 +1,27 @@
 from unittest.mock import Mock
 
 from django.contrib.auth import models
+from django.test import RequestFactory
 
 from graphql_extensions import exceptions
 from graphql_extensions.auth import decorators
 
-from ..testcases import UserTestCase
+from ..testcases import TestCase
 
 
-def info_mock(user):
-    return Mock(context=Mock(user=user))
+class DecoratorsTestCase(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.request_factory = RequestFactory()
+
+    def info(self, user, **kwargs):
+        request = self.request_factory.post('/', **kwargs)
+        request.user = user
+        return Mock(context=request)
 
 
-class AuthDecoratorsTests(UserTestCase):
+class UserPassesTests(DecoratorsTestCase):
 
     def test_user_passes_test(self):
 
@@ -20,17 +29,20 @@ class AuthDecoratorsTests(UserTestCase):
         def wrapped(info):
             """Decorated function"""
 
-        result = wrapped(info_mock(self.user))
+        result = wrapped(self.info(self.user))
         self.assertIsNone(result)
 
-    def test_user_passes_test_permission_denied(self):
+    def test_permission_denied(self):
 
         @decorators.user_passes_test(lambda u: u.pk == self.user.pk + 1)
         def wrapped(info):
             """Decorated function"""
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(info_mock(self.user))
+            wrapped(self.info(self.user))
+
+
+class LoginRequiredTests(DecoratorsTestCase):
 
     def test_login_required(self):
 
@@ -38,17 +50,20 @@ class AuthDecoratorsTests(UserTestCase):
         def wrapped(info):
             """Decorated function"""
 
-        result = wrapped(info_mock(self.user))
+        result = wrapped(self.info(self.user))
         self.assertIsNone(result)
 
-    def test_login_required_permission_denied(self):
+    def test_permission_denied(self):
 
         @decorators.login_required
         def wrapped(info):
             """Decorated function"""
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(info_mock(models.AnonymousUser()))
+            wrapped(self.info(models.AnonymousUser()))
+
+
+class StaffMemberRequiredTests(DecoratorsTestCase):
 
     def test_staff_member_required(self):
 
@@ -57,18 +72,21 @@ class AuthDecoratorsTests(UserTestCase):
             """Decorated function"""
 
         self.user.is_staff = True
-        result = wrapped(info_mock(self.user))
+        result = wrapped(self.info(self.user))
 
         self.assertIsNone(result)
 
-    def test_staff_member_required_permission_denied(self):
+    def test_permission_denied(self):
 
         @decorators.staff_member_required
         def wrapped(info):
             """Decorated function"""
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(info_mock(self.user))
+            wrapped(self.info(self.user))
+
+
+class PermissionRequiredTests(DecoratorsTestCase):
 
     def test_permission_required(self):
 
@@ -79,7 +97,7 @@ class AuthDecoratorsTests(UserTestCase):
         perm = models.Permission.objects.get(codename='add_user')
         self.user.user_permissions.add(perm)
 
-        result = wrapped(info_mock(self.user))
+        result = wrapped(self.info(self.user))
         self.assertIsNone(result)
 
     def test_permission_denied(self):
@@ -89,4 +107,4 @@ class AuthDecoratorsTests(UserTestCase):
             """Decorated function"""
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(info_mock(self.user))
+            wrapped(self.info(self.user))
