@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.0.6
+-----
+
+* Renamed GraphQLTestCase to SchemaTestCase
+
 0.0.5
 -----
 
