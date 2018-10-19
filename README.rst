@@ -167,6 +167,8 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
 
 .. code:: python
 
+    from django.contrib.auth import get_user_model
+
     from graphql_extensions.testcases import SchemaTestCase
 
 
@@ -191,7 +193,11 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
             self.assertTrue(response.data['user'])
 
         def test_get_viewer(self):
-            self.client.login(username='test', password='dolphins')
+            user = get_user_model().objects.create_user(
+                username='test',
+                password='dolphins')
+
+            self.client.force_login(self.user)
 
             query = '''
             {
@@ -201,7 +207,9 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
             }'''
 
             response = self.client.execute(query)
-            self.assertEqual(response.data['viewer']['username'], 'test')
+            data = response.data['viewer']
+
+            self.assertEqual(data['username'], user.username)
 
 
 Types
