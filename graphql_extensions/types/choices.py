@@ -26,6 +26,6 @@ class Choices(Scalar):
 
         if value not in choices:
             raise exceptions.ValidationError(
-                _('Invalid choice \'{}\'').format(value),
+                _("Invalid choice '{}'").format(value),
             )
         return value
