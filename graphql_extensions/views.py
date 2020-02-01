@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from graphene_django.views import GraphQLView as BaseGraphQLView
 from graphql.error import GraphQLError

@@ -1,4 +1,4 @@
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from graphene.types.scalars import Scalar
 from graphql.language import ast

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.0.7
+-----
+
+* Remove deprecated ugettext and add Django 3 support
+
 0.0.6
 -----
 
