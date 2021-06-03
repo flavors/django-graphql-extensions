@@ -1,6 +1,6 @@
 from functools import wraps
 
-from .. import exceptions
+from . import exceptions
 
 __all__ = [
     'user_passes_test',

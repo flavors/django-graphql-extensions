@@ -3,8 +3,7 @@ from unittest.mock import Mock
 from django.contrib.auth import models
 from django.test import RequestFactory
 
-from graphql_extensions import exceptions
-from graphql_extensions.auth import decorators
+from graphql_extensions import decorators, exceptions
 
 from ..testcases import TestCase
 
