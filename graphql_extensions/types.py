@@ -17,7 +17,7 @@ class Timestamp(Scalar):
 
     @classmethod
     def parse_literal(cls, node):
-        if isinstance(node, ast.IntValue):
+        if isinstance(node, ast.IntValueNode):
             return cls.parse_value(node.value)
 
     @classmethod
@@ -33,7 +33,7 @@ class Email(Scalar):
 
     @classmethod
     def parse_literal(cls, node):
-        if isinstance(node, ast.StringValue):
+        if isinstance(node, ast.StringValueNode):
             return cls.parse_value(node.value)
 
     @classmethod
