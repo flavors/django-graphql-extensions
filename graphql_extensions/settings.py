@@ -4,12 +4,12 @@ from django.conf import settings
 from django.test.signals import setting_changed
 
 DEFAULTS = {
-    'EXT_SHOW_ERROR_MESSAGE_HANDLER':
+    'SHOW_ERROR_MESSAGE_HANDLER':
     'graphql_extensions.views.show_error_message',
 }
 
 IMPORT_STRINGS = (
-    'EXT_SHOW_ERROR_MESSAGE_HANDLER',
+    'SHOW_ERROR_MESSAGE_HANDLER',
 )
 
 

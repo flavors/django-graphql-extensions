@@ -1,14 +1,13 @@
 import traceback
+from calendar import timegm
 from collections import OrderedDict
+from datetime import datetime
 
 from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext as _
 
 from graphene_django.views import GraphQLView as BaseGraphQLView
 from graphql.error import GraphQLError
-from graphql.error import format_error as format_graphql_error
-from graphql.error.located_error import GraphQLLocatedError
 
 from . import exceptions
 from .settings import extensions_settings
@@ -16,8 +15,8 @@ from .settings import extensions_settings
 
 def show_error_message(error):
     return settings.DEBUG or isinstance(error, (
-        exceptions.GraphQLError,
         GraphQLError,
+        exceptions.GraphQLError,
     ))
 
 
@@ -25,42 +24,35 @@ class GraphQLView(BaseGraphQLView):
 
     @staticmethod
     def format_error(error):
-        if isinstance(error, GraphQLLocatedError):
+        formatted = BaseGraphQLView.format_error(error)
+
+        if isinstance(error, GraphQLError) and\
+                error.original_error is not None:
+
             error = error.original_error
 
-        formatted_error = format_graphql_error(error)
-        graphql_error = OrderedDict([('type', error.__class__.__name__)])
+        if not extensions_settings.SHOW_ERROR_MESSAGE_HANDLER(error):
+            formatted['message'] = _('Internal server error')
 
-        if extensions_settings.EXT_SHOW_ERROR_MESSAGE_HANDLER(error):
-            graphql_error['message'] = formatted_error['message']
-        else:
-            # Internal errors must be masked
-            graphql_error['message'] = _('Internal server error')
+        extensions = OrderedDict([
+            ('type', error.__class__.__name__),
+            ('code', getattr(error, 'code', 'error')),
+            ('timestamp', timegm(datetime.utcnow().utctimetuple())),
+        ])
 
-        if isinstance(error, exceptions.GraphQLError):
-            graphql_error['code'] = error.code
-
-            if error.error_data:
-                graphql_error['data'] = error.error_data
-        else:
-            graphql_error['code'] = 'error'
-
-        if 'location' in formatted_error:
-            graphql_error['location'] = formatted_error['location']
+        if hasattr(error, 'error_data'):
+            extensions['data'] = error.error_data
 
         if error.__traceback__ is not None:
             info = error.__traceback__.tb_frame.f_locals.get('info')
 
             if info is not None:
-                graphql_error['path'] = [info.field_name]
-                graphql_error['operation'] = info.operation.operation
+                extensions['operation'] = info.operation.operation.name
 
-        if settings.DEBUG:
-            graphql_error['trace'] = traceback.format_list(
-                traceback.extract_tb(error.__traceback__))
+            if settings.DEBUG:
+                extensions['trace'] = traceback.format_list(
+                    traceback.extract_tb(error.__traceback__),
+                )
 
-        return graphql_error
-
-
-class LoginRequiredGraphQLView(LoginRequiredMixin, GraphQLView):
-    """Adding login required"""
+        formatted['extensions'] = extensions
+        return formatted
