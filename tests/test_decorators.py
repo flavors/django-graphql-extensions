@@ -1,109 +1,119 @@
-from unittest.mock import Mock
+from unittest import mock
 
-from django.contrib.auth import models
-from django.test import RequestFactory
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser, Permission
+from django.test import RequestFactory, TestCase
 
 from graphql_extensions import decorators, exceptions
 
-from .testcases import TestCase
 
-
-class DecoratorsTestCase(TestCase):
+class DecoratorTestCase(TestCase):
 
     def setUp(self):
-        super().setUp()
         self.request_factory = RequestFactory()
+        self.user = get_user_model().objects.create_user(
+            username='test',
+            password='dolphins',
+        )
 
-    def info(self, user, **kwargs):
-        request = self.request_factory.post('/', **kwargs)
-        request.user = user
-        return Mock(context=request)
+    def info(self, user=None, **headers):
+        request = self.request_factory.post('/', **headers)
+
+        if user is not None:
+            request.user = user
+
+        return mock.Mock(
+            context=request,
+            path=['test'],
+        )
 
 
-class UserPassesTests(DecoratorsTestCase):
+class UserPassesTests(DecoratorTestCase):
 
     def test_user_passes_test(self):
+        result = decorators.user_passes_test(
+            lambda u: u.pk == self.user.pk,
+        )(lambda info: None)(self.info(self.user))
 
-        @decorators.user_passes_test(lambda u: u.pk == self.user.pk)
-        def wrapped(info):
-            """Decorated function"""
-
-        result = wrapped(self.info(self.user))
         self.assertIsNone(result)
 
     def test_permission_denied(self):
-
-        @decorators.user_passes_test(lambda u: u.pk == self.user.pk + 1)
-        def wrapped(info):
-            """Decorated function"""
+        func = decorators.user_passes_test(
+            lambda u: u.pk == self.user.pk + 1,
+        )(lambda info: None)
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(self.info(self.user))
+            func(self.info(self.user))
 
 
-class LoginRequiredTests(DecoratorsTestCase):
+class LoginRequiredTests(DecoratorTestCase):
 
     def test_login_required(self):
+        result = decorators.login_required(
+            lambda info: None,
+        )(self.info(self.user))
 
-        @decorators.login_required
-        def wrapped(info):
-            """Decorated function"""
-
-        result = wrapped(self.info(self.user))
         self.assertIsNone(result)
 
     def test_permission_denied(self):
-
-        @decorators.login_required
-        def wrapped(info):
-            """Decorated function"""
+        func = decorators.login_required(lambda info: None)
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(self.info(models.AnonymousUser()))
+            func(self.info(AnonymousUser()))
 
 
-class StaffMemberRequiredTests(DecoratorsTestCase):
+class StaffMemberRequiredTests(DecoratorTestCase):
 
     def test_staff_member_required(self):
-
-        @decorators.staff_member_required
-        def wrapped(info):
-            """Decorated function"""
-
         self.user.is_staff = True
-        result = wrapped(self.info(self.user))
+
+        result = decorators.staff_member_required(
+            lambda info: None,
+        )(self.info(self.user))
 
         self.assertIsNone(result)
 
     def test_permission_denied(self):
-
-        @decorators.staff_member_required
-        def wrapped(info):
-            """Decorated function"""
+        func = decorators.staff_member_required(lambda info: None)
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(self.info(self.user))
+            func(self.info(self.user))
 
 
-class PermissionRequiredTests(DecoratorsTestCase):
+class SuperuserRequiredTests(DecoratorTestCase):
+
+    def test_superuser_required(self):
+        self.user.is_superuser = True
+
+        result = decorators.superuser_required(
+            lambda info: None,
+        )(self.info(self.user))
+
+        self.assertIsNone(result)
+
+    def test_permission_denied(self):
+        func = decorators.superuser_required(lambda info: None)
+
+        with self.assertRaises(exceptions.PermissionDenied):
+            func(self.info(self.user))
+
+
+class PermissionRequiredTests(DecoratorTestCase):
 
     def test_permission_required(self):
-
-        @decorators.permission_required('auth.add_user')
-        def wrapped(info):
-            """Decorated function"""
-
-        perm = models.Permission.objects.get(codename='add_user')
+        perm = Permission.objects.get(codename='add_user')
         self.user.user_permissions.add(perm)
 
-        result = wrapped(self.info(self.user))
+        result = decorators.permission_required('auth.add_user')(
+            lambda info: None,
+        )(self.info(self.user))
+
         self.assertIsNone(result)
 
     def test_permission_denied(self):
-
-        @decorators.permission_required(['auth.add_user', 'auth.change_user'])
-        def wrapped(info):
-            """Decorated function"""
+        func = decorators.permission_required(
+            ['auth.add_user', 'auth.change_user'],
+        )(lambda info: None)
 
         with self.assertRaises(exceptions.PermissionDenied):
-            wrapped(self.info(self.user))
+            func(self.info(self.user))
