@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser, Permission
 from django.test import RequestFactory, TestCase
 
+from graphql.execution.execute import GraphQLResolveInfo
+
 from graphql_extensions import decorators, exceptions
 
 
@@ -17,7 +19,7 @@ class DecoratorTestCase(TestCase):
         request = self.request_factory.post('/', **extra)
         if user is not None:
             request.user = user
-        return mock.Mock(context=request)
+        return mock.Mock(context=request, spec=GraphQLResolveInfo)
 
 
 class UserPassesTests(DecoratorTestCase):
