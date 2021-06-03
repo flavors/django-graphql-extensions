@@ -30,11 +30,11 @@ setup(
     url='https://github.com/flavors/django-graphql-extensions/',
     packages=find_packages(exclude=['tests*']),
     install_requires=[
-        'Django>=1.11',
-        'graphene-django>=2.0.0',
+        'Django>=2.0',
+        'graphene-django==3.0.0b1',
     ],
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
@@ -45,19 +45,16 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Framework :: Django',
-        'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
         'Framework :: Django :: 2.1',
         'Framework :: Django :: 2.2',
         'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
+        'Framework :: Django :: 3.2',
     ],
     zip_safe=False,
-    tests_require=[
-        'Django>=1.11',
-        'graphene-django>=2.0.0',
-    ],
     package_data={
         'graphql_extensions': [
             'locale/*/LC_MESSAGES/django.po',
