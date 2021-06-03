@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import TestCase
 
 from graphql.language import ast
@@ -5,7 +7,7 @@ from graphql.language import ast
 from graphql_extensions import exceptions, types
 
 
-class EmailTypeTests(TestCase):
+class EmailTests(TestCase):
 
     def test_email(self):
         email = 'do@make.test'
@@ -17,3 +19,14 @@ class EmailTypeTests(TestCase):
 
         with self.assertRaises(exceptions.ValidationError):
             email_type.parse_value('invalid')
+
+
+class TimestampTests(TestCase):
+
+    def test_timestamp(self):
+        now = datetime.datetime.now()
+        timestamp_type = types.Timestamp()
+        node = ast.IntValue(now.timestamp())
+
+        self.assertEqual(timestamp_type.serialize(now), int(now.timestamp()))
+        self.assertEqual(timestamp_type.parse_literal(node), now)
