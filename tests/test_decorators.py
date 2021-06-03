@@ -5,7 +5,7 @@ from django.test import RequestFactory
 
 from graphql_extensions import decorators, exceptions
 
-from ..testcases import TestCase
+from .testcases import TestCase
 
 
 class DecoratorsTestCase(TestCase):
