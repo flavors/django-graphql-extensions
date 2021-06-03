@@ -1,5 +1,7 @@
 from functools import wraps
 
+from graphql.execution.execute import GraphQLResolveInfo
+
 from . import exceptions
 
 __all__ = [
@@ -14,7 +16,10 @@ __all__ = [
 def context(f):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            info = args[f.__code__.co_varnames.index('info')]
+            info = next(
+                arg for arg in args
+                if isinstance(arg, GraphQLResolveInfo)
+            )
             return func(info.context, *args, **kwargs)
         return wrapper
     return decorator

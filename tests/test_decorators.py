@@ -11,21 +11,13 @@ class DecoratorTestCase(TestCase):
 
     def setUp(self):
         self.request_factory = RequestFactory()
-        self.user = get_user_model().objects.create_user(
-            username='test',
-            password='dolphins',
-        )
+        self.user = get_user_model().objects.create_user(username='test')
 
-    def info(self, user=None, **headers):
-        request = self.request_factory.post('/', **headers)
-
+    def info(self, user=None, **extra):
+        request = self.request_factory.post('/', **extra)
         if user is not None:
             request.user = user
-
-        return mock.Mock(
-            context=request,
-            path=['test'],
-        )
+        return mock.Mock(context=request)
 
 
 class UserPassesTests(DecoratorTestCase):
