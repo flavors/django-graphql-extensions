@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Django GraphQL Extensions\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-25 01:22+0700\n"
-"PO-Revision-Date: 2018-01-19 20:26+0530\n"
+"POT-Creation-Date: 2021-06-04 11:37+0700\n"
+"POT-Creation-Date: 2021-06-04 11:37+0700\n"
 "Last-Translator: mongkok <domake.io@gmail.com>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -35,14 +35,6 @@ msgstr "Los datos no son correctos"
 msgid "GraphQL object not found"
 msgstr "GraphQL objecto no encontrado"
 
-#: relay/types.py:26
-msgid "ID cannot be resolved"
-msgstr "ID no puede resolverse"
-
-#: types/choices.py:29
-msgid "Invalid choice '{}'"
-msgstr "Opción inválida '{}'"
-
-#: views.py:33
+#: views.py:34
 msgid "Internal server error"
 msgstr "Error interno del servidor"
