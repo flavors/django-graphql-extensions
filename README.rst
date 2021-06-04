@@ -1,7 +1,7 @@
 Django GraphQL Extensions
 =========================
 
-|Pypi| |Wheel| |Build Status| |Codecov| |Codacy|
+|Pypi| |Build Status| |Codecov| |Codacy|
 
 A collection of custom extensions for `Django GraphQL`_
 
