@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user
+from django.contrib.auth.models import AnonymousUser
 from django.core.handlers.wsgi import WSGIRequest
 from django.test import Client, RequestFactory, testcases
 
@@ -17,35 +17,44 @@ class SchemaRequestFactory(RequestFactory):
     def schema(self, **kwargs):
         self._schema = graphene.Schema(**kwargs)
 
-    def execute(self, context, query, variables):
-        return self._schema.execute(
-            query,
-            context=context,
-            variables=variables)
+    def execute(self, query, **options):
+        return self._schema.execute(query, **options)
 
 
 class SchemaClient(SchemaRequestFactory, Client):
 
+    def __init__(self, **defaults):
+        super().__init__(**defaults)
+        self._credentials = {}
+        self._user = AnonymousUser()
+
     def request(self, **request):
         request = WSGIRequest(self._base_environ(**request))
-
-        if self.session:
-            request.session = self.session
-            request.user = get_user(request)
+        request.user = self._user
         return request
 
-    def execute(self, query, variables=None, **headers):
-        context = self.post('/', **headers)
-        response = super().execute(context, query, variables)
+    def authenticate(self, user):
+        self._user = user
 
-        if response.errors is not None:
-            response.errors = [
+    def execute(self, query, variables=None, **extra):
+        extra.update(self._credentials)
+        context = self.post('/', **extra)
+
+        result = super().execute(
+            query,
+            context_value=context,
+            variable_values=variables,
+        )
+        if result.errors is not None:
+            result.errors = [
                 GraphQLView.format_error(error)
-                for error in response.errors
+                for error in result.errors
             ]
-
-        return response
+        return result
 
 
 class SchemaTestCase(testcases.TestCase):
     client_class = SchemaClient
+
+    def execute(self, query, variables=None, **extra):
+        return self.client.execute(query, variables, **extra)
