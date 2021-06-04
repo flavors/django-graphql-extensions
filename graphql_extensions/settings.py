@@ -1,32 +1,33 @@
-from importlib import import_module
-
 from django.conf import settings
 from django.test.signals import setting_changed
+from django.utils.module_loading import import_string
 
 DEFAULTS = {
-    'EXT_SHOW_ERROR_MESSAGE_HANDLER':
+    'SHOW_ERROR_MESSAGE_HANDLER':
     'graphql_extensions.views.show_error_message',
 }
 
 IMPORT_STRINGS = (
-    'EXT_SHOW_ERROR_MESSAGE_HANDLER',
+    'SHOW_ERROR_MESSAGE_HANDLER',
 )
 
 
 def perform_import(value, setting_name):
-    if value is not None and isinstance(value, str):
+    if isinstance(value, str):
         return import_from_string(value, setting_name)
+    if isinstance(value, (list, tuple)):
+        return [import_from_string(item, setting_name) for item in value]
     return value
 
 
 def import_from_string(value, setting_name):
     try:
-        module_path, class_name = value.rsplit('.', 1)
-        module = import_module(module_path)
-        return getattr(module, class_name)
-    except (ImportError, AttributeError) as e:
-        msg = 'Could not import `{}` for EXT setting `{}`. {}: {}.'.format(
-            value, setting_name, e.__class__.__name__, e)
+        return import_string(value)
+    except ImportError as e:
+        msg = (
+            f'Could not import `{value}` for EXTENSIONS setting'
+            f'`{setting_name}`. {e.__class__.__name__}: {e}.'
+        )
         raise ImportError(msg)
 
 
@@ -39,7 +40,7 @@ class ExtensionsSettings(object):
 
     def __getattr__(self, attr):
         if attr not in self.defaults:
-            raise AttributeError('Invalid setting: `{}`'.format(attr))
+            raise AttributeError(f'Invalid setting: `{attr}`')
 
         value = self.user_settings.get(attr, self.defaults[attr])
 
@@ -53,7 +54,7 @@ class ExtensionsSettings(object):
     @property
     def user_settings(self):
         if not hasattr(self, '_user_settings'):
-            self._user_settings = getattr(settings, 'GRAPHQL_EXT', {})
+            self._user_settings = getattr(settings, 'GRAPHQL_EXTENSIONS', {})
         return self._user_settings
 
     def reload(self):
@@ -69,7 +70,7 @@ class ExtensionsSettings(object):
 def reload_settings(*args, **kwargs):
     setting = kwargs['setting']
 
-    if setting == 'GRAPHQL_EXT':
+    if setting == 'GRAPHQL_EXTENSIONS':
         extensions_settings.reload()
 
 

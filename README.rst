@@ -1,7 +1,7 @@
 Django GraphQL Extensions
 =========================
 
-|Pypi| |Wheel| |Build Status| |Codecov| |Code Climate|
+|Pypi| |Wheel| |Build Status| |Codecov| |Codacy|
 
 A collection of custom extensions for `Django GraphQL`_
 
@@ -11,8 +11,9 @@ A collection of custom extensions for `Django GraphQL`_
 Dependencies
 ------------
 
-* Python ≥ 3.4
-* Django ≥ 1.11
+* Python ≥ 3.6
+* Django ≥ 2.0
+* Graphene-django ≥ 3.0.0b1
 
 
 Installation
@@ -30,19 +31,20 @@ Authentication
 
 - ``@login_required``
 - ``@staff_member_required``
+- ``@superuser_required``
 - ``@permission_required``
 - ``@user_passes_test``
 
 See the `documentation`_ to know the full list of decorators.
 
-.. _documentation: https://github.com/flavors/django-graphql-extensions/wiki/Auth-decorators
+.. _documentation: https://github.com/flavors/django-graphql-extensions/wiki/Decorators
 
 .. code:: python
 
     from django.contrib.auth import get_user_model
 
     import graphene
-    from graphql_extensions.auth.decorators import (
+    from graphql_extensions.decorators import (
         login_required, staff_member_required,
     )
 
@@ -97,67 +99,34 @@ Configure your ``GraphQLView``.
     {
       "errors": [
         {
-          "type": "NotFound",
-          "message": "GraphQL object not found",
-          "code": "notFound",
-          "data": {
-            "id": 1
-          },
-          "path": ["updateGroup"],
-          "operation": "mutation",
-          "trace": [
-            "  File \"/app/schema.py\", line 30, in mutate\n    group = cls.update(info, **kwargs)\n",
-            "  File \"/graphql_extensions/mixins.py\", line 32, in update\n    instance = cls.get_object(context, id=id)\n",
-            "  File \"/graphql_extensions/mixins.py\", line 21, in get_object\n    raise exceptions.NotFound(**kwargs)\n"
-          ]
+          "message": "You do not have permission to perform this action",
+          "locations": [
+            {
+              "line": 3,
+              "column": 13
+            }
+          ],
+          "path": [
+            "viewer"
+          ],
+          "extensions": {
+            "type": "PermissionDenied",
+            "code": "permissionDenied",
+            "timestamp": 1622783872,
+            "data": {},
+            "operation": "QUERY",
+            "trace": [
+              "  File \"site-packages/graphql/execution/execute.py\", line 617, in resolve_field\n    result = resolve_fn(source, info, **args)\n",
+              "  File \"graphql_extensions/decorators.py\", line 23, in wrapper\n    return func(info.context, *args, **kwargs)\n",
+              "  File \"graphql_extensions/decorators.py\", line 35, in wrapper\n    raise exc\n"
+            ]
+          }
         }
       ],
       "data": {
-        "updateGroup": null
+        "viewer": null
       }
     }
-
-
-Mixins
-------
-
-**Pre-built mutations** that provide for commonly used patterns.
-
-- ``RetrieveMixin``
-- ``UpdateMixin``
-
-.. code:: python
-
-    from django.contrib.auth.models import Group
-
-    import graphene
-    from graphene_django import DjangoObjectType
-    from graphql_extensions import mixins
-    from graphql_extensions.auth.decorators import login_required
-
-
-    class GroupType(DjangoObjectType):
-
-        class Meta:
-            model = Group
-
-
-    class UpdateGroup(mixins.UpdateMixin, graphene.Mutation):
-        group = graphene.Field(GroupType)
-
-        class Arguments:
-            id = graphene.Int(required=True)
-            name = graphene.String()
-
-        @classmethod
-        def get_queryset(cls, info, **kwargs):
-            return info.context.user.groups.all()
-
-        @classmethod
-        @login_required
-        def mutate(cls, root, info, **kwargs):
-            group = cls.update(info, **kwargs)
-            return cls(group=group)
 
 
 Writing tests
@@ -184,7 +153,7 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
               }
             }'''
 
-            response = self.client.execute(query, {
+            response = self.execute(query, {
                 'username': 'test',
                 'password': 'dolphins',
             })
@@ -192,12 +161,13 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
             self.assertFalse(response.errors)
             self.assertTrue(response.data['user'])
 
-        def test_get_viewer(self):
+        def test_viewer(self):
             user = get_user_model().objects.create_user(
                 username='test',
-                password='dolphins')
+                password='dolphins',
+            )
 
-            self.client.force_login(self.user)
+            self.client.authenticate(self.user)
 
             query = '''
             {
@@ -206,7 +176,7 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
               }
             }'''
 
-            response = self.client.execute(query)
+            response = self.execute(query)
             data = response.data['viewer']
 
             self.assertEqual(data['username'], user.username)
@@ -219,30 +189,20 @@ Custom *Graphene* **types**.
 
 - ``Email``
 - ``Timestamp``
-- ``Choices``
-- ``CamelJSON``
-- ...
-
-
-Relay
------
-
-Complete support for `Relay`_.
-
-.. _Relay: https://facebook.github.io/relay/
 
 
 .. |Pypi| image:: https://img.shields.io/pypi/v/django-graphql-extensions.svg
    :target: https://pypi.python.org/pypi/django-graphql-extensions
+   :alt: Pypi
 
-.. |Wheel| image:: https://img.shields.io/pypi/wheel/django-graphql-extensions.svg
-   :target: https://pypi.python.org/pypi/django-graphql-extensions
+.. |Build Status| image:: https://travis-ci.com/flavors/django-graphql-extensions.svg?branch=master
+   :target: https://travis-ci.com/flavors/django-graphql-extensions
+   :alt: Build Status
 
-.. |Build Status| image:: https://travis-ci.org/flavors/django-graphql-extensions.svg?branch=master
-   :target: https://travis-ci.org/flavors/django-graphql-extensions
-
-.. |Codecov| image:: https://img.shields.io/codecov/c/github/flavors/django-graphql-extensions.svg
+.. |Codecov| image:: https://codecov.io/gh/flavors/django-graphql-extensions/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/flavors/django-graphql-extensions
+   :alt: Codecov
 
-.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/6ca5da3b6a51d35ea7d6/maintainability
-   :target: https://codeclimate.com/github/flavors/django-graphql-extensions
+.. |Codacy| image:: https://app.codacy.com/project/badge/Grade/95cb35fad84c4560973181a22352ac4b
+   :target: https://www.codacy.com/gh/flavors/django-graphql-extensions/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=flavors/django-graphql-extensions&amp;utm_campaign=Badge_Grade
+   :alt: Codacy
