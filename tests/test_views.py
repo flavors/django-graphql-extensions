@@ -7,17 +7,20 @@ from graphql_extensions.views import GraphQLView
 
 class ViewsTests(TestCase):
 
-    @override_settings(DEBUG=True)
+    @override_settings(DEBUG=True, GRAPHQL_EXTENSIONS={
+        'SHOW_ERROR_MESSAGE_HANDLER': lambda error: False,
+    })
     def test_format_error(self):
         try:
             raise RuntimeError
         except RuntimeError as e:
             formatted = GraphQLView.format_error(
-                GraphQLError('', original_error=e),
+                GraphQLError('!', original_error=e),
             )
 
-        extensions = formatted['extensions']
+        self.assertNotEqual(formatted['message'], '!')
 
+        extensions = formatted['extensions']
         self.assertEqual(extensions['type'], 'RuntimeError')
         self.assertEqual(extensions['code'], 'error')
         self.assertIsInstance(extensions['timestamp'], int)
