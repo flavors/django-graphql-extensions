@@ -8,12 +8,14 @@ from graphql.execution.execute import GraphQLResolveInfo
 
 from graphql_extensions import decorators, exceptions
 
+UserModel = get_user_model()
+
 
 class DecoratorTestCase(TestCase):
 
     def setUp(self):
         self.request_factory = RequestFactory()
-        self.user = get_user_model().objects.create_user(username='test')
+        self.user = UserModel.objects.create_user(username='test')
 
     def info(self, user=None, **extra):
         request = self.request_factory.post('/', **extra)
