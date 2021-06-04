@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AnonymousUser
 from django.core.handlers.wsgi import WSGIRequest
-from django.test import Client, RequestFactory, testcases
+from django.test import Client, RequestFactory, TestCase
 
 import graphene
 from graphene_django.settings import graphene_settings
@@ -53,7 +53,7 @@ class SchemaClient(SchemaRequestFactory, Client):
         return result
 
 
-class SchemaTestCase(testcases.TestCase):
+class SchemaTestCase(TestCase):
     client_class = SchemaClient
 
     def execute(self, query, variables=None, **extra):

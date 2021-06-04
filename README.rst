@@ -138,7 +138,7 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
 
     from django.contrib.auth import get_user_model
 
-    from graphql_extensions.testcases import SchemaTestCase
+    from graphql_extensions.test import SchemaTestCase
 
 
     class UsersTests(SchemaTestCase):
