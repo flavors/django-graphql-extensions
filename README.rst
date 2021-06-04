@@ -153,7 +153,7 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
               }
             }'''
 
-            response = self.execute(query, {
+            response = self.client.execute(query, {
                 'username': 'test',
                 'password': 'dolphins',
             })
@@ -176,7 +176,7 @@ This package includes a subclass of `unittest.TestCase <https://docs.python.org/
               }
             }'''
 
-            response = self.execute(query)
+            response = self.client.execute(query)
             data = response.data['viewer']
 
             self.assertEqual(data['username'], user.username)

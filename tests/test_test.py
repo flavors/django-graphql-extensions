@@ -22,12 +22,12 @@ class SchemaTestCaseTests(SchemaTestCase):
         }
         '''
 
-        result = self.execute(query=query)
+        result = self.client.execute(query=query)
         self.assertTrue(result.errors)
 
         self.client.authenticate(self.user)
 
-        result = self.execute(query=query)
+        result = self.client.execute(query=query)
         data = result.data['viewer']
 
         self.assertFalse(result.errors)

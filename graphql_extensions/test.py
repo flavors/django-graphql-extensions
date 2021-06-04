@@ -55,6 +55,3 @@ class SchemaClient(SchemaRequestFactory, Client):
 
 class SchemaTestCase(TestCase):
     client_class = SchemaClient
-
-    def execute(self, query, variables=None, **extra):
-        return self.client.execute(query, variables, **extra)
