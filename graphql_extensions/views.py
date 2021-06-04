@@ -1,6 +1,5 @@
 import traceback
 from calendar import timegm
-from collections import OrderedDict
 from datetime import datetime
 
 from django.conf import settings
@@ -34,11 +33,12 @@ class GraphQLView(BaseGraphQLView):
         if not extensions_settings.SHOW_ERROR_MESSAGE_HANDLER(error):
             formatted['message'] = _('Internal server error')
 
-        extensions = OrderedDict([
-            ('type', error.__class__.__name__),
-            ('code', getattr(error, 'code', 'error')),
-            ('timestamp', timegm(datetime.utcnow().utctimetuple())),
-        ])
+        extensions = {
+            'type': error.__class__.__name__,
+            'code': getattr(error, 'code', 'error'),
+            'timestamp': timegm(datetime.utcnow().utctimetuple()),
+            **formatted.get('extensions', {}),
+        }
 
         if hasattr(error, 'error_data'):
             extensions['data'] = error.error_data
