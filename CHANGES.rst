@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.1.0
+-----
+
+* Moved decorators to project root
+* Improved SchemaTestCase
+* Removed CamelJSON and Choices types
+* Removed relay module
+* Removed mixins
+
 0.0.7
 -----
 
