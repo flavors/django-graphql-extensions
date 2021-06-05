@@ -9,6 +9,8 @@ Changelog
 * Removed CamelJSON and Choices types
 * Removed relay module
 * Removed mixins
+* Renamed GRAPHQL_EXT to GRAPHQL_EXTENSIONS settings
+* Renamed EXT_SHOW_ERROR_MESSAGE_HANDLER to SHOW_ERROR_MESSAGE_HANDLER
 
 0.0.7
 -----
