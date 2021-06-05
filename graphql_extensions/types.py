@@ -11,33 +11,33 @@ from . import exceptions
 
 class Timestamp(Scalar):
 
-    @classmethod
-    def serialize(cls, value):
-        return int(value.timestamp())
+    @staticmethod
+    def serialize(ts):
+        return int(ts.timestamp())
 
-    @classmethod
+    @staticmethod
     def parse_literal(cls, node):
         if isinstance(node, ast.IntValueNode):
             return cls.parse_value(node.value)
 
-    @classmethod
-    def parse_value(cls, value):
+    @staticmethod
+    def parse_value(value):
         return datetime.datetime.fromtimestamp(value)
 
 
 class Email(Scalar):
 
-    @classmethod
-    def serialize(cls, value):
-        return str(value)
+    @staticmethod
+    def serialize(email):
+        return str(email)
 
-    @classmethod
+    @staticmethod
     def parse_literal(cls, node):
         if isinstance(node, ast.StringValueNode):
             return cls.parse_value(node.value)
 
-    @classmethod
-    def parse_value(cls, value):
+    @staticmethod
+    def parse_value(value):
         try:
             validate_email(value)
         except ValidationError as e:
