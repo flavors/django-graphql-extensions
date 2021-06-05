@@ -7,6 +7,9 @@ TEXT_LOOKUPS = CHOICES_LOOKUPS + [
 
 RANGE_LOOKUPS = ['exact', 'gt', 'gte', 'lt', 'lte']
 
-DATETIME_LOOKUPS = RANGE_LOOKUPS + \
-    ['date__' + lookup for lookup in RANGE_LOOKUPS] + \
-    ['year', 'month', 'week_day', 'day', 'hour']
+DATE_UNITS = ['year', 'month', 'week_day', 'day']
+
+DATE_LOOKUPS = RANGE_LOOKUPS + DATE_UNITS
+
+DATETIME_LOOKUPS = RANGE_LOOKUPS + DATE_UNITS + ['hour'] + \
+    ['date__' + lookup for lookup in RANGE_LOOKUPS]
